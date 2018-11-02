@@ -9,7 +9,7 @@ output: html_document
 
 ## Permutations
 
-### Statistique de test Iris subset 1 ###
+## Statistique de test Iris subset 1
 ```{r}
 iris_subset <- iris[c(89:94, 108:112),]
 mean(iris_subset$Sepal.Width[iris_subset$Species=="versicolor"])-mean(iris_subset$Sepal.Width[iris_subset$Species=="virginica"])
@@ -17,7 +17,7 @@ vec = iris_subset$Sepal.Width
 ```
 
 
-### Statistique de test Iris subset 2 ###
+## Statistique de test Iris subset 2 
 
 ```{r}
 iris_subset2 <- iris[88:114,]
@@ -91,6 +91,8 @@ pvalue= sum(c(-0.3133333,vec) <= -0.3133333)/9999
 ```{r}
 pvalue2 = sum(c(0.06529412,vec2) <= 0.06529412)/9999
 ```
+
+
 ## Exercicce 2
 
 ```{r}
@@ -179,3 +181,81 @@ ggplot(data, aes(x=Category, y = Syllable))+
 ## Task G
 
 ## Task H 
+
+## Exrcice 3
+
+```{r}
+A = rnorm(50,3,2)
+B = rnorm(50,4,2)
+valeur = c(A,B)
+groupe1 = rep("A",50)
+groupe2 = rep("B",50)
+groupe = c(groupe1,groupe2)
+
+temp = data.frame(valeur, groupe)
+View(temp)
+
+```
+
+
+# On a crée notre jeu de données, maintenant effectuons un t.test
+
+h = t.test(temp$valeur[temp$groupe == "A"], temp$valeur[temp$groupe=="B"])
+
+# La p-valeur est 0.03225 
+# 0.03225 < 5% donc il y aurait une différence significative des moyennes du groupe A et du groupe B #
+
+
+# On prend 5 valeurs de chaque groupe #
+
+```{r}
+A.sample = sample(temp$valeur[temp$groupe=="A"],5)
+B.sample = sample(temp$valeur[temp$groupe=="B"],5)
+
+h2 = t.test(A.sample, B.sample)
+```
+
+
+# Ici la p-valeur est 0.2679 > 5% donc il ne semble pas y avoir de différence significative entre les deux groupes 
+
+# La taille de l'échantillon est donc importante pour effectuer un test.
+
+# Effectuons des tests de permutation sur les deux cas 
+par(mfrow=c(1,2))
+
+# Avec les 100 valeurs
+
+```{r}
+vec = seq(0,9999)
+
+for(i in 0:10000){
+  vec[i] = t.test(sample(temp$valeur,50),(sample(temp$valeur,50)))$statistic
+  i = i+1
+}
+vec
+
+
+hist(vec)
+abline(v = h$statistic , col = "red")
+
+```
+
+# Avec les 10 valeurs
+
+```{r}
+temp2 = c(A.sample, B.sample)
+
+vec2 = seq(0,9999)
+
+for(i in 0:10000){
+  vec2[i] = t.test(sample(temp$valeur,5),(sample(temp$valeur,5)))$statistic
+  i = i+1
+}
+vec2
+
+hist(vec2)
+abline(v = h2$statistic , col = "red")
+
+```
+
+# D'après les deux histogrammes, la répartition semble sensiblement la meme.  Mais la position de notre statistique de test initiale est bien différente. Dans le deuxième cas, elle est centrée, ce qui signifie qu'il n'y a pas beaucoup de différence entre les deux moyennes. Dans le premier par contre elle est loin d'etre centrée, ce qui signifie qu'il y a un écart entre les moyennes des deux groupes. Cette différence peut s'expliquer par l'effectif pris en compte dans les deux tests.
